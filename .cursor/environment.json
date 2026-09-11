@@ -1,0 +1,16 @@
+{
+  "name": "Grokbot",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "npm run dev"
+    }
+  ],
+  "ports": [
+    {
+      "name": "Grokbot",
+      "port": 3000
+    }
+  ]
+}
