@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grokbot</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header">
+        <div class="brand">
+          <span class="brand__logo">🤖</span>
+          <div>
+            <h1 class="brand__title">Grokbot</h1>
+            <p class="brand__subtitle" id="mode-badge">connecting…</p>
+          </div>
+        </div>
+      </header>
+
+      <main class="chat" id="chat" aria-live="polite">
+        <div class="message message--bot">
+          <div class="message__bubble">
+            Hi, I'm <strong>Grokbot</strong>. Ask me anything to get started.
+          </div>
+        </div>
+      </main>
+
+      <form class="composer" id="composer">
+        <input
+          class="composer__input"
+          id="input"
+          type="text"
+          placeholder="Message Grokbot…"
+          autocomplete="off"
+          required
+        />
+        <button class="composer__send" id="send" type="submit">Send</button>
+      </form>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
