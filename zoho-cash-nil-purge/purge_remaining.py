@@ -9,7 +9,8 @@ is deleted only after those passes.
 Credentials are read from an env file. Nothing in this script is a secret.
 
 Exit status is 0 when every selected contact is deleted (or already gone),
-and 1 when the run finishes with one or more contacts still present.
+1 when the run finishes with one or more contacts still present, and 2 when
+Zoho's org call cap (code 45) or --max-calls stops the run early.
 """
 
 from __future__ import annotations
@@ -32,7 +33,27 @@ MAX_PASSES = 3
 MAX_PAGES = 50
 PER_PAGE = 200
 REQUEST_PAUSE_SECONDS = 0.2
+# One pause-and-retry when Zoho returns the org call cap, then the run stops.
+CALL_CAP_BACKOFF_SECONDS = 15
 REQUIRED_ENV = ("ZOHO_CLIENT_ID", "ZOHO_CLIENT_SECRET", "ZOHO_REFRESH_TOKEN")
+
+# Copied onto the JSONString invoice update. A salesperson_id-only PUT is
+# rejected on older paid invoices, so the line has to go back with the id.
+LINE_ITEM_PUT_KEYS = (
+    "line_item_id",
+    "item_id",
+    "name",
+    "description",
+    "rate",
+    "quantity",
+    "tax_id",
+    "tax_name",
+    "discount",
+    "unit",
+    "item_order",
+    "hsn_or_sac",
+    "account_id",
+)
 
 # Delete order after credit applications and refunds are removed.
 # Retainer invoices sit with invoices because quotes cannot be deleted while
@@ -184,6 +205,91 @@ def is_already_void(body: object) -> bool:
     return "already" in message and "void" in message
 
 
+def is_org_call_cap(body: object) -> bool:
+    """Zoho code 45: org maximum call rate (the 2,000 cap), not a short 429."""
+    if code_of(body) in (45, "45"):
+        return True
+    message = message_of(body).lower()
+    return "maximum call rate" in message or "call rate limit" in message
+
+
+def is_json_encoding_error(body: object) -> bool:
+    message = message_of(body).lower()
+    return "jsonstring" in message or "invalid json" in message or "content-type" in message or "content type" in message
+
+
+class ZohoCallBudgetStop(Exception):
+    """Stop the whole purge. Further Books calls would keep failing or burn the cap."""
+
+    def __init__(self, reason: str, body: dict | None = None, http: int | None = None):
+        super().__init__(reason)
+        self.reason = reason
+        self.body = body or {}
+        self.http = http
+
+
+def invoice_salesperson_payload(invoice: dict, salesperson_id: str) -> dict | None:
+    """Full invoice body for PUT. salesperson_id alone is not enough on paid invoices."""
+    line_items = []
+    for line in invoice.get("line_items") or []:
+        if not isinstance(line, dict):
+            continue
+        item = {key: line.get(key) for key in LINE_ITEM_PUT_KEYS if line.get(key) not in (None, "")}
+        if item:
+            line_items.append(item)
+    if not invoice.get("customer_id") or not line_items:
+        return None
+    payload: dict = {
+        "customer_id": invoice.get("customer_id"),
+        "salesperson_id": salesperson_id,
+        "line_items": line_items,
+    }
+    for key in ("date", "due_date", "discount", "discount_type", "is_discount_before_tax", "reference_number"):
+        if invoice.get(key) not in (None, ""):
+            payload[key] = invoice.get(key)
+    return payload
+
+
+def load_deleted_contacts(path: Path) -> list[dict]:
+    """Contacts a previous results file already marked deleted."""
+    if not path.is_file():
+        raise SystemExit(f"skip file not found: {path}")
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"skip file is not valid JSON: {exc}") from exc
+    rows = data.get("results") if isinstance(data, dict) else data
+    if not isinstance(rows, list):
+        raise SystemExit("skip file must be a purge results object or a list of contact results")
+    deleted = []
+    for row in rows:
+        if isinstance(row, dict) and row.get("contact_deleted") and (row.get("contact_id") or row.get("contact_number")):
+            deleted.append(row)
+    return deleted
+
+
+def prior_skip_entry(row: dict) -> dict:
+    return {
+        "contact_number": row.get("contact_number"),
+        "contact_name": row.get("contact_name"),
+        "contact_id": None if row.get("contact_id") is None else str(row.get("contact_id")),
+        "passes_run": row.get("passes_run") or 0,
+        "docs": [],
+        "unresolved": [],
+        "contact_deleted": True,
+        "contact_code": row.get("contact_code"),
+        "contact_message": row.get("contact_message") or "skipped; deleted in a previous run",
+        "contact_http": row.get("contact_http"),
+        "skipped_prior": True,
+    }
+
+
+def contact_is_prior_deleted(contact: dict, deleted_ids: set[str], deleted_numbers: set[str]) -> bool:
+    contact_id = str(contact.get("contact_id") or "")
+    number = str(contact.get("contact_number") or "").strip().upper()
+    return (contact_id and contact_id in deleted_ids) or (number and number in deleted_numbers)
+
+
 def now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -244,6 +350,32 @@ def summarize(results: list[dict], requested: int) -> dict:
     }
 
 
+def print_summary(payload: dict) -> None:
+    summary = payload.get("summary") or {}
+    stopped = bool(payload.get("stopped"))
+    print("SUMMARY", flush=True)
+    if stopped:
+        print("  status: STOPPED", flush=True)
+        print(f"  reason: {payload.get('stop_reason')}", flush=True)
+        if payload.get("stop_code") not in (None, ""):
+            print(f"  stop_code: {payload.get('stop_code')}", flush=True)
+        print("  No further Zoho Books calls were made after this stop.", flush=True)
+    else:
+        print("  status: finished", flush=True)
+    print(f"  calls_made: {payload.get('calls_made')}", flush=True)
+    if payload.get("max_calls") is not None:
+        print(f"  max_calls: {payload.get('max_calls')}", flush=True)
+    print(f"  skipped_prior: {payload.get('skipped_prior') or 0}", flush=True)
+    print(
+        f"  requested={summary.get('requested')} deleted={summary.get('deleted')} "
+        f"failed={summary.get('failed')}",
+        flush=True,
+    )
+    print(f"  results: {payload.get('results_path')}", flush=True)
+    if stopped:
+        print("  Resume after the cap resets with --skip-deleted-from pointing at this results file.", flush=True)
+
+
 class ZohoBooks:
     """Minimal Books v3 client. `call` is the only method that touches the network."""
 
@@ -264,6 +396,9 @@ class ZohoBooks:
         self._salesperson_id: str | None = None
         self._salesperson_ready = False
         self.skip_prefixes: set[str] = set()
+        self.calls_made = 0
+        self.max_calls: int | None = None
+        self.cap_backoff_seconds = CALL_CAP_BACKOFF_SECONDS
 
     def token_endpoint(self) -> str:
         if self.accounts_url.endswith("/oauth/v2/token"):
@@ -359,12 +494,49 @@ class ZohoBooks:
             reason = getattr(exc, "reason", exc)
             return {"code": None, "message": f"{type(exc).__name__}: {reason}"}, None, None
 
+    def _stop_if_over_budget(self) -> None:
+        if self.max_calls is not None and self.calls_made >= self.max_calls:
+            raise ZohoCallBudgetStop(
+                f"local --max-calls {self.max_calls} reached ({self.calls_made} Zoho Books calls)",
+                {"code": None, "message": f"--max-calls {self.max_calls} reached"},
+                None,
+            )
+
     def call(self, method: str, path: str, query: dict | None = None, json_body=None, form_body=None):
         auth_retries = 0
         transient_retries = 0
+        cap_retries = 0
         while True:
+            self._stop_if_over_budget()
             self._pace()
             body, http, retry_after = self._once(method, path, query, json_body, form_body)
+            self.calls_made += 1
+            # Code 45 is the org cap ("maximum call rate limit of 2,000").
+            # Pause once and retry that single call. If it is still the cap, stop
+            # the process instead of walking the rest of the contact list.
+            if is_org_call_cap(body):
+                can_retry = cap_retries < 1 and (self.max_calls is None or self.calls_made < self.max_calls)
+                if can_retry:
+                    cap_retries += 1
+                    wait = self.cap_backoff_seconds
+                    if retry_after:
+                        try:
+                            wait = max(wait, float(retry_after))
+                        except ValueError:
+                            pass
+                    detail = message_of(body).rstrip(".")
+                    print(
+                        f"Zoho code 45 call cap on {method} {path}: {detail}. "
+                        f"Backing off {wait:.0f}s for one retry.",
+                        flush=True,
+                    )
+                    time.sleep(wait)
+                    continue
+                raise ZohoCallBudgetStop(
+                    f"Zoho code 45: {message_of(body) or 'maximum call rate limit'}",
+                    body if isinstance(body, dict) else {"message": message_of(body)},
+                    http,
+                )
             message = message_of(body).lower()
             transient = http in (429, 500, 502, 503, 504) or "too many requests" in message
             if http == 401 and auth_retries < 1:
@@ -692,6 +864,11 @@ def unlink_invoice_payments(client: ZohoBooks, entry: dict, pass_i: int, invoice
 
 
 def assign_salesperson(client: ZohoBooks, entry: dict, pass_i: int, invoice_id: str, number: str) -> bool:
+    """PUT the invoice back with line items and a salesperson, as JSONString.
+
+    A body that is only salesperson_id fails on older paid invoices. If this
+    full update fails, the caller voids the invoice and deletes it.
+    """
     salesperson = client.salesperson_id()
     if not salesperson:
         record(
@@ -705,40 +882,10 @@ def assign_salesperson(client: ZohoBooks, entry: dict, pass_i: int, invoice_id: 
             http=None,
         )
         return False
-    minimal = {"salesperson_id": salesperson}
-    for label, kwargs in (
-        ("json", {"json_body": minimal}),
-        ("form", {"form_body": minimal}),
-    ):
-        body, http = client.call("PUT", f"/invoices/{invoice_id}", **kwargs)
-        ok = record(
-            entry,
-            pass_i=pass_i,
-            action="put_salesperson",
-            kind="invoices",
-            doc_id=invoice_id,
-            number=number,
-            body=body,
-            http=http,
-            related_id=salesperson if label == "json" else f"{salesperson}:{label}",
-        )
-        if ok:
-            return True
     detail, detail_http = client.call("GET", f"/invoices/{invoice_id}")
     invoice = detail.get("invoice") if isinstance(detail, dict) else None
-    line_items = []
-    if isinstance(invoice, dict):
-        for line in invoice.get("line_items") or []:
-            if not isinstance(line, dict):
-                continue
-            item = {
-                key: line.get(key)
-                for key in ("line_item_id", "item_id", "name", "description", "rate", "quantity", "tax_id")
-                if line.get(key) not in (None, "")
-            }
-            if item:
-                line_items.append(item)
-    if not isinstance(invoice, dict) or not invoice.get("customer_id") or not line_items:
+    payload = invoice_salesperson_payload(invoice, salesperson) if isinstance(invoice, dict) else None
+    if not payload:
         record(
             entry,
             pass_i=pass_i,
@@ -751,15 +898,21 @@ def assign_salesperson(client: ZohoBooks, entry: dict, pass_i: int, invoice_id: 
             related_id=salesperson,
         )
         return False
-    body, http = client.call(
-        "PUT",
-        f"/invoices/{invoice_id}",
-        json_body={
-            "customer_id": invoice.get("customer_id"),
-            "salesperson_id": salesperson,
-            "line_items": line_items,
-        },
+    body, http = client.call("PUT", f"/invoices/{invoice_id}", form_body=payload)
+    ok = record(
+        entry,
+        pass_i=pass_i,
+        action="put_salesperson",
+        kind="invoices",
+        doc_id=invoice_id,
+        number=number,
+        body=body,
+        http=http,
+        related_id=f"{salesperson}:jsonstring",
     )
+    if ok or not is_json_encoding_error(body):
+        return ok
+    body, http = client.call("PUT", f"/invoices/{invoice_id}", json_body=payload)
     return record(
         entry,
         pass_i=pass_i,
@@ -769,7 +922,7 @@ def assign_salesperson(client: ZohoBooks, entry: dict, pass_i: int, invoice_id: 
         number=number,
         body=body,
         http=http,
-        related_id=salesperson,
+        related_id=f"{salesperson}:json",
     )
 
 
@@ -1029,20 +1182,24 @@ def run_pass(client: ZohoBooks, entry: dict, pass_i: int, customer_id: str) -> d
     return stats
 
 
-def purge_contact(client: ZohoBooks, contact: dict) -> dict:
+def purge_contact(client: ZohoBooks, contact: dict, entry: dict | None = None) -> dict:
     customer_id = str(contact["contact_id"])
-    entry = {
-        "contact_number": contact.get("contact_number"),
-        "contact_name": contact.get("contact_name"),
-        "contact_id": customer_id,
-        "passes_run": 0,
-        "docs": [],
-        "unresolved": [],
-        "contact_deleted": False,
-        "contact_code": None,
-        "contact_message": "",
-        "contact_http": None,
-    }
+    if entry is None:
+        entry = {}
+    entry.update(
+        {
+            "contact_number": contact.get("contact_number"),
+            "contact_name": contact.get("contact_name"),
+            "contact_id": customer_id,
+            "passes_run": 0,
+            "docs": [],
+            "unresolved": [],
+            "contact_deleted": False,
+            "contact_code": None,
+            "contact_message": "",
+            "contact_http": None,
+        }
+    )
     probe, probe_http = client.call("GET", f"/contacts/{customer_id}")
     if is_missing(probe):
         entry["contact_deleted"] = True
@@ -1108,11 +1265,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--limit",
         type=int,
         default=None,
-        help="After sorting by CUS number, process only the first N contacts",
+        help="After skipping already-deleted contacts, process only the first N",
+    )
+    parser.add_argument(
+        "--max-calls",
+        type=int,
+        default=None,
+        help="Stop before the next Books call once this many calls have been made (exit 2)",
+    )
+    parser.add_argument(
+        "--skip-deleted-from",
+        default=None,
+        help="Previous results JSON; skip contacts already marked contact_deleted",
     )
     args = parser.parse_args(argv)
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be a positive integer")
+    if args.max_calls is not None and args.max_calls < 1:
+        parser.error("--max-calls must be a positive integer")
     return args
 
 
@@ -1121,6 +1291,30 @@ def main(argv: list[str] | None = None) -> int:
     env = load_env(Path(args.env_path))
     org_id = env.get("ZOHO_ORG_ID") or DEFAULT_ORG_ID
     contacts = load_contacts(Path(args.contacts))
+    skipped_rows: list[dict] = []
+    if args.skip_deleted_from:
+        prior = load_deleted_contacts(Path(args.skip_deleted_from))
+        deleted_ids = {str(row["contact_id"]) for row in prior if row.get("contact_id")}
+        deleted_numbers = {str(row.get("contact_number") or "").strip().upper() for row in prior}
+        deleted_numbers.discard("")
+        kept = []
+        for contact in contacts:
+            if not contact_is_prior_deleted(contact, deleted_ids, deleted_numbers):
+                kept.append(contact)
+                continue
+            match = next(
+                (
+                    row
+                    for row in prior
+                    if (contact.get("contact_id") and str(row.get("contact_id") or "") == str(contact.get("contact_id")))
+                    or str(row.get("contact_number") or "").strip().upper() == str(contact.get("contact_number") or "").strip().upper()
+                ),
+                contact,
+            )
+            skipped_rows.append(prior_skip_entry(match))
+        contacts = kept
+        skipped_list = ", ".join(str(row.get("contact_number") or row.get("contact_id")) for row in skipped_rows)
+        print(f"skip prior deleted={len(skipped_rows)}: {skipped_list}", flush=True)
     if args.limit is not None:
         contacts = contacts[: args.limit]
     out = Path(args.out)
@@ -1129,19 +1323,39 @@ def main(argv: list[str] | None = None) -> int:
         "started_at": now_iso(),
         "updated_at": None,
         "finished_at": None,
+        "results_path": str(out),
         "contacts_requested": len(contacts),
-        "results": [],
+        "skipped_prior": len(skipped_rows),
+        "max_calls": args.max_calls,
+        "calls_made": 0,
+        "stopped": False,
+        "stop_reason": None,
+        "stop_code": None,
+        "results": list(skipped_rows),
         "summary": summarize([], len(contacts)),
     }
 
     def save() -> None:
+        attempted = [row for row in payload["results"] if not row.get("skipped_prior")]
         payload["updated_at"] = now_iso()
-        payload["summary"] = summarize(payload["results"], payload["contacts_requested"])
+        payload["calls_made"] = client.calls_made
+        summary = summarize(attempted, payload["contacts_requested"])
+        summary["skipped_prior"] = payload["skipped_prior"]
+        summary["calls_made"] = client.calls_made
+        summary["stopped"] = payload["stopped"]
+        summary["stop_reason"] = payload["stop_reason"]
+        payload["summary"] = summary
         atomic_write(out, payload)
 
     client = ZohoBooks(env, org_id)
+    client.max_calls = args.max_calls
     client.refresh()
-    print(f"token ok org={org_id} contacts={len(contacts)} out={out}", flush=True)
+    print(
+        f"token ok org={org_id} contacts={len(contacts)} skipped_prior={len(skipped_rows)} "
+        f"max_calls={args.max_calls} out={out}",
+        flush=True,
+    )
+    stop: ZohoCallBudgetStop | None = None
     try:
         for index, contact in enumerate(contacts, 1):
             if index == 1 or index % 15 == 0:
@@ -1163,11 +1377,36 @@ def main(argv: list[str] | None = None) -> int:
             }
             payload["results"].append(entry)
             try:
-                produced = purge_contact(client, contact)
-                entry.clear()
-                entry.update(produced)
+                purge_contact(client, contact, entry)
+            except ZohoCallBudgetStop as exc:
+                stop = exc
+                payload["stopped"] = True
+                payload["stop_reason"] = exc.reason
+                payload["stop_code"] = code_of(exc.body)
+                entry["stopped"] = True
+                entry["contact_code"] = code_of(exc.body)
+                entry["contact_message"] = exc.reason
+                entry["contact_http"] = exc.http
+                entry["unresolved"] = unresolved_deletes(entry.get("docs") or [])
+                entry["docs"].append(
+                    {
+                        "pass": entry.get("passes_run") or 0,
+                        "action": "stop",
+                        "kind": "zoho",
+                        "id": entry.get("contact_id"),
+                        "number": entry.get("contact_number"),
+                        "related_id": None,
+                        "ok": False,
+                        "code": code_of(exc.body),
+                        "message": exc.reason,
+                        "http": exc.http,
+                    }
+                )
+                break
             finally:
                 save()
+            if stop:
+                break
             latest: dict[tuple, dict] = {}
             for doc in entry["docs"]:
                 if doc.get("action") == "delete":
@@ -1176,19 +1415,18 @@ def main(argv: list[str] | None = None) -> int:
             docs_fail = sum(1 for doc in latest.values() if not doc.get("ok"))
             print(
                 f"[{index}/{len(contacts)}] {number} contact_ok={entry['contact_deleted']} "
-                f"docs_ok={docs_ok} docs_fail={docs_fail} msg={entry['contact_message']}",
+                f"docs_ok={docs_ok} docs_fail={docs_fail} calls={client.calls_made} "
+                f"msg={entry['contact_message']}",
                 flush=True,
             )
     finally:
         payload["finished_at"] = now_iso()
         save()
 
-    summary = payload["summary"]
-    print(
-        f"DONE requested={summary['requested']} deleted={summary['deleted']} failed={summary['failed']}",
-        flush=True,
-    )
-    failed = [entry for entry in payload["results"] if not entry.get("contact_deleted")]
+    print_summary(payload)
+    if stop:
+        return 2
+    failed = [entry for entry in payload["results"] if not entry.get("contact_deleted") and not entry.get("skipped_prior")]
     if failed:
         print("STILL BLOCKED:", flush=True)
         for entry in failed:
