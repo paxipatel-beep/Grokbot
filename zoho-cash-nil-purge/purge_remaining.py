@@ -957,7 +957,6 @@ def run_pass(client: ZohoBooks, entry: dict, pass_i: int, customer_id: str) -> d
             body=cn_body,
             http=cn_http,
         )
-    stats["listed"] += len(creditnotes)
     for creditnote in creditnotes:
         creditnote_id = str(creditnote.get("creditnote_id") or "")
         number = str(creditnote.get("creditnote_number") or creditnote_id)
@@ -977,7 +976,6 @@ def run_pass(client: ZohoBooks, entry: dict, pass_i: int, customer_id: str) -> d
             body=inv_body,
             http=inv_http,
         )
-    stats["listed"] += len(invoices)
     for invoice in invoices:
         invoice_id = str(invoice.get("invoice_id") or "")
         number = str(invoice.get("invoice_number") or invoice_id)
