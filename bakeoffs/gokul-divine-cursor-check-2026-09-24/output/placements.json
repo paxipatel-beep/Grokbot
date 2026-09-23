@@ -1,0 +1,787 @@
+{
+  "project": "Gokul Divine, C/503, Irla S.V. Road, Vile Parle West, Mumbai 400056",
+  "base_pdf": "layout/100826_GOKUL_DIVINE_ELECTRICAL_LAYOUT_v2.pdf",
+  "base_pdf_sha256_before_merge": "0b1a8fb2a99ced68daee481e1b33384749f02dfda2400d120911444320aa382f",
+  "base_pdf_sha256_after_merge": "0b1a8fb2a99ced68daee481e1b33384749f02dfda2400d120911444320aa382f",
+  "base_unchanged": true,
+  "evidence_class": "base-only (discussion electrical layout)",
+  "issue_status": "PROPOSED / FOR REVIEW / NOT FOR EXECUTION",
+  "page": {
+    "width_pt": 1191.0,
+    "height_pt": 842.0,
+    "orientation": "landscape (A3)"
+  },
+  "product_totals": {
+    "DB": 1,
+    "SW": 12,
+    "SO": 11,
+    "10\"": 1,
+    "GW": 4,
+    "IR": 4,
+    "CM": 4,
+    "4\"": 3,
+    "cameras": 0
+  },
+  "placements": [
+    {
+      "id": "EF-DB-1",
+      "room": "Entrance Foyer",
+      "product": "DB",
+      "qty": 1,
+      "mounting": "wall, at VDP/bell cluster",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        708.0,
+        128.0
+      ],
+      "badge_xy": [
+        722.0,
+        108.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Plan text 'vdp camera' (700.6,121.0), 'bell point' (707.7,125.0), 'vdp screen' (705.8,140.7); SB1 'Main Door Bell point & VDP camera' schedule row.",
+      "assumption": "Badge offset up-left of the VDP/bell text cluster so it does not sit on top of the printed words; exact bell-push mounting height not shown on this sheet."
+    },
+    {
+      "id": "EF-SW-1",
+      "room": "Entrance Foyer",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "on wall, latch jamb (candidate)",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        719.8,
+        136.8
+      ],
+      "badge_xy": [
+        760.0,
+        118.0
+      ],
+      "leader_drawn": true,
+      "evidence": "In-plan SB1 tag at (719.8,136.8) inside Entrance Foyer, matching the 'Main Door / Bell point & VDP camera / main door light point / name plate light point / VDP screen' SB1 schedule row.",
+      "assumption": "Placement rule 4: SW on the latch jamb opposite the door swing. The main-door swing arc itself is not drawn on this electrical-only sheet (only the ENTRY/EXIT arrow + SB1 dot are shown), so the jamb side is a candidate, not a confirmed hinge/latch reading \u2014 flagged for site verification."
+    },
+    {
+      "id": "LD-SW-1",
+      "room": "Living & Dining Room",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "on wall, beside sofa seating",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        699.0,
+        351.0
+      ],
+      "badge_xy": [
+        722.0,
+        320.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Furniture labels 'sofa' (696.9,345.8) and 'center table' (646.6,340.8-371.4) mark the L-seating group; SB6 Living&Dining schedule row lists 'ceiling light point - 5nos / 2 way fan point / diwali light point / chajja light point / AC point / curtain light point'.",
+      "assumption": "Rule 2: SW/SO above sofa side seating. No dedicated 'side table' word label was found beside the Living Dining sofa on this sheet (unlike the three bedrooms), so the badge is set at the sofa arm rather than tied to a printed side-table tag \u2014 flagged as a furniture-only read."
+    },
+    {
+      "id": "LD-SO-1",
+      "room": "Living & Dining Room",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "on wall, beside sofa seating",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        699.0,
+        351.0
+      ],
+      "badge_xy": [
+        722.0,
+        334.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same evidence as LD-SW-1.",
+      "assumption": "Paired with LD-SW-1 at one control station per rule 2."
+    },
+    {
+      "id": "LD-10-1",
+      "room": "Living & Dining Room",
+      "product": "10\"",
+      "qty": 1,
+      "mounting": "wall screen, TV/mandir wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        580.0,
+        152.0
+      ],
+      "badge_xy": [
+        605.0,
+        172.0
+      ],
+      "leader_drawn": true,
+      "evidence": "In-plan 'tv unit' labels at (548.4,144.6) and (617.6,147.3) on the passage-facing wall that opens onto Living & Dining; room has direct sightline to the Entrance Foyer / VDP per rule 2b.",
+      "assumption": "10\" chosen over 4\" because Living & Dining is the primary living zone with entry sightline (rule 2). Exact screen height/orientation on the tv-unit wall is not dimensioned on this electrical sheet."
+    },
+    {
+      "id": "LD-GW-1",
+      "room": "Living & Dining Room",
+      "product": "GW",
+      "qty": 1,
+      "mounting": "surface, near TV/mandir wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        588.0,
+        158.0
+      ],
+      "badge_xy": [
+        560.0,
+        172.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Same 'tv unit' plan labels as LD-10-1, plus SB2/SB3 Living&Dining schedule rows '5/15 amp socket - 2 nos for tv and HDMI cable' / 'switch for tv on/off'.",
+      "assumption": "AV serve wall inferred from tv-unit symbol + TV/HDMI schedule text; no dedicated AV-rack furniture symbol is drawn."
+    },
+    {
+      "id": "LD-IR-1",
+      "room": "Living & Dining Room",
+      "product": "IR",
+      "qty": 1,
+      "mounting": "separate blaster, near TV wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        588.0,
+        158.0
+      ],
+      "badge_xy": [
+        560.0,
+        188.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same evidence as LD-GW-1.",
+      "assumption": "Family-B keeps GW and IR as separate badges (not combined CG+IR) per the sheet's simplified-family convention noted in LEARNINGS.md."
+    },
+    {
+      "id": "LD-CM-1",
+      "room": "Living & Dining Room",
+      "product": "CM",
+      "qty": 1,
+      "mounting": "candidate drive end, balcony slider (right wall return)",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        705.0,
+        468.0
+      ],
+      "badge_xy": [
+        695.0,
+        443.0
+      ],
+      "leader_drawn": true,
+      "evidence": "SB6 Living&Dining schedule row 'curtain light point' (word cluster 'curtain light point' at 765.9-808.8,563.7); BALCONY 10'6\"x2'0\" opening at (632.6-657.7,471.4-476.5) with full-width glazed threshold visible in marking/strip_living_dining.png.",
+      "assumption": "ONE candidate motor placed at the right wall return (fixed partition adjoining Parent's Bathroom) per Codex rule: one CM per evidenced track at a candidate drive end, not both ends. This is an electrical-only base with no RCP/curtain schedule, so exact stacking side, opening direction and true track count (single vs dual-track) are NOT shown and must be confirmed on site or against a curtain layout before execution."
+    },
+    {
+      "id": "MB-4-1",
+      "room": "Master Bedroom",
+      "product": "4\"",
+      "qty": 1,
+      "mounting": "bedside screen, first side from entry",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        230.0,
+        420.0
+      ],
+      "badge_xy": [
+        255.0,
+        400.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Bed label at (287.8,445.6)-(298.1,450.8); room entry inferred from the SB4/SB4A/SB4B/SB4C switch cluster on the west wall at (184-208,398-460), adjacent to the wardrobe/passage side.",
+      "assumption": "Rule 1: first bedside reached from room entry gets 4\"+SW/SO. The exact door-leaf swing into Master Bedroom is not drawn on this electrical sheet, so 'first side' is inferred from the SB4-series wall cluster proximity to the passage \u2014 flagged for confirmation against the furniture/architectural plan."
+    },
+    {
+      "id": "MB-SW-1",
+      "room": "Master Bedroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "bedside, first side from entry",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        230.0,
+        420.0
+      ],
+      "badge_xy": [
+        255.0,
+        416.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as MB-4-1.",
+      "assumption": "Paired with MB-4-1 per rule 1."
+    },
+    {
+      "id": "MB-SO-1",
+      "room": "Master Bedroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "bedside, first side from entry",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        230.0,
+        420.0
+      ],
+      "badge_xy": [
+        255.0,
+        432.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as MB-4-1.",
+      "assumption": "Paired with MB-4-1 per rule 1."
+    },
+    {
+      "id": "MB-SW-2",
+      "room": "Master Bedroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "bedside, other side",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        332.0,
+        382.0
+      ],
+      "badge_xy": [
+        318.0,
+        366.0
+      ],
+      "leader_drawn": true,
+      "evidence": "'side'+'table' word pair at (323.4,385.5)-(334.6,396.7) plus in-plan SB2/SB2A tags at (329.9-340.7,374.2-388.5) on the east wall of Master Bedroom.",
+      "assumption": "Rule 1: other (non-entry) bedside gets SW/SO only, no screen \u2014 matches the existing printed side-table + SB2/SB2A control station."
+    },
+    {
+      "id": "MB-SO-2",
+      "room": "Master Bedroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "bedside, other side",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        332.0,
+        382.0
+      ],
+      "badge_xy": [
+        318.0,
+        380.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as MB-SW-2.",
+      "assumption": "Paired with MB-SW-2 per rule 1."
+    },
+    {
+      "id": "MB-CM-1",
+      "room": "Master Bedroom",
+      "product": "CM",
+      "qty": 1,
+      "mounting": "candidate drive end, north wall (left/wardrobe-corner return)",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        215.0,
+        345.0
+      ],
+      "badge_xy": [
+        206.0,
+        360.0
+      ],
+      "leader_drawn": true,
+      "evidence": "SB3 Master Bedroom schedule row 'AC point / curtain light point / chajja light point / diwali light point / hanging light point'; word cluster 'curtain light point' at (90.2-133.1,613.8-625.1) in the Master Bedroom SB legend table; north wall of the room (behind the '8\\'1\\\" wardrobe' run at y\u224865-95 crop-px, i.e. pdf y\u2248355-360) is the room's principal window wall in the plan.",
+      "assumption": "This electrical sheet does not draw a window/curtain-track symbol (only a 'wardrobe' furniture callout sits against this wall), so the exact glazing width and stacking side are inferred, not confirmed. CM placed at the left (dressing-mirror-corner) wall return as the more clearly square corner versus the rounded corner on the opposite end \u2014 flagged as a review item."
+    },
+    {
+      "id": "MB-GW-1",
+      "room": "Master Bedroom",
+      "product": "GW",
+      "qty": 1,
+      "mounting": "surface, TV wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        197.0,
+        445.0
+      ],
+      "badge_xy": [
+        224.0,
+        430.0
+      ],
+      "leader_drawn": true,
+      "evidence": "In-plan 'tv unit' label at (196.9,438.5)-(201.9,453.4) on the west wall; SB4 schedule row '5/15 amp socket - 2 nos for tv and HDMI cable'.",
+      "assumption": "AV serve wall confirmed by an explicit in-plan TV-unit symbol (stronger evidence than the bedrooms without a drawn console)."
+    },
+    {
+      "id": "MB-IR-1",
+      "room": "Master Bedroom",
+      "product": "IR",
+      "qty": 1,
+      "mounting": "separate blaster, TV wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        197.0,
+        445.0
+      ],
+      "badge_xy": [
+        224.0,
+        454.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as MB-GW-1.",
+      "assumption": "Separate IR badge per family-B convention."
+    },
+    {
+      "id": "AB-SW-1",
+      "room": "Att. Bathroom (Master)",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "wall bracket, dry/basin wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        274.0,
+        220.0
+      ],
+      "badge_xy": [
+        268.0,
+        198.0
+      ],
+      "leader_drawn": true,
+      "evidence": "In-plan SB1 tag at (271.8,215.2)-(277.7,224.8); Master Bathroom SB1 schedule row '3 ceiling light point / 1 geyser point / 1 exhaust fan point / 1 pressure pump point / mirror light point / 5/15 amp switch socket / 1 light will be on sensor'.",
+      "assumption": "Rule 3: cyan pair placed on the dry basin wall (east side, at the printed SB1 tag) opposite the 'geyser'/'exhaust' text cluster on the west wall (183-202,192-242), read as the wet/shower side."
+    },
+    {
+      "id": "AB-SO-1",
+      "room": "Att. Bathroom (Master)",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "wall bracket, dry/basin wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        274.0,
+        220.0
+      ],
+      "badge_xy": [
+        268.0,
+        214.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as AB-SW-1.",
+      "assumption": "Paired with AB-SW-1 per rule 3."
+    },
+    {
+      "id": "GB-4-1",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "4\"",
+      "qty": 1,
+      "mounting": "bedside screen, sofa-cum-bed head end",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        495.0,
+        375.0
+      ],
+      "badge_xy": [
+        494.0,
+        375.0
+      ],
+      "leader_drawn": false,
+      "evidence": "'sofa cum bed' rotated label at (492.7,393.2)-(497.7,427.7); SB4/SB4A schedule row '2 ceiling light points' on the north wall at (537.9-551.9,348.8-359.8).",
+      "assumption": "Sofa-cum-bed has one clear accessible long edge (unlike a free-standing bed with two sides), so a single bedside 4\"+SW/SO station is placed at the head end rather than doubling per side."
+    },
+    {
+      "id": "GB-SW-1",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "bedside, sofa-cum-bed head end",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        495.0,
+        375.0
+      ],
+      "badge_xy": [
+        494.0,
+        391.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as GB-4-1.",
+      "assumption": "Paired with GB-4-1."
+    },
+    {
+      "id": "GB-SO-1",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "bedside, sofa-cum-bed head end",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        495.0,
+        375.0
+      ],
+      "badge_xy": [
+        494.0,
+        407.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as GB-4-1.",
+      "assumption": "Paired with GB-4-1."
+    },
+    {
+      "id": "GB-SW-2",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "secondary control, work-desk wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        452.0,
+        494.0
+      ],
+      "badge_xy": [
+        452.0,
+        514.0
+      ],
+      "leader_drawn": true,
+      "evidence": "'work desk' label at (440.4-464.7,492.1-497.2); in-plan SB5/SB5A tags at (535.2-549.2,460.2-471.0) and duplicate SB5/SB5A reference near the desk area.",
+      "assumption": "Rule from SKILL.md: SW mapped to a confirmed switchboard/control point near matched furniture (work desk) rather than invented; treated as a secondary control station, not a second bedside."
+    },
+    {
+      "id": "GB-SO-2",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "secondary control, work-desk wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        452.0,
+        494.0
+      ],
+      "badge_xy": [
+        452.0,
+        530.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as GB-SW-2.",
+      "assumption": "Paired with GB-SW-2."
+    },
+    {
+      "id": "GB-CM-1",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "CM",
+      "qty": 1,
+      "mounting": "candidate drive end, own balcony slider (right wall return)",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        552.0,
+        490.0
+      ],
+      "badge_xy": [
+        500.0,
+        458.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Word cluster 'curtain light point' at (400.0-442.9,672.7-684.1) in the Guest Bedroom SB legend table; BALCONY 10'0\"x2'0\" opening at (479.8-505.0,519.7-531.1) adjoining the room's south wall.",
+      "assumption": "Same standing rule as LD-CM-1: one CM at a candidate drive end (right return, adjacent to the Parent's-Bathroom-side partition), track count / stacking side not shown on this electrical-only sheet \u2014 flagged for confirmation."
+    },
+    {
+      "id": "GB-GW-1",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "GW",
+      "qty": 1,
+      "mounting": "surface, north wall (near SB4/SB4A)",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        544.0,
+        356.0
+      ],
+      "badge_xy": [
+        568.0,
+        330.0
+      ],
+      "leader_drawn": true,
+      "evidence": "SB4/SB4A tags at (537.9-551.9,348.8-359.8); Guest Bedroom SB schedule text referencing a TV/HDMI 5/15 amp socket point for this room.",
+      "assumption": "No TV-console furniture symbol is drawn for this room on the electrical sheet (unlike Master Bedroom); AV wall is inferred from the SB4/SB4A cluster nearest the schedule's TV/HDMI line \u2014 flagged as a lower-confidence read than MB-GW-1."
+    },
+    {
+      "id": "GB-IR-1",
+      "room": "Guest Bedroom (plan label 'Home Office')",
+      "product": "IR",
+      "qty": 1,
+      "mounting": "separate blaster, north wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        544.0,
+        356.0
+      ],
+      "badge_xy": [
+        568.0,
+        346.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as GB-GW-1.",
+      "assumption": "Separate IR badge per family-B."
+    },
+    {
+      "id": "GT-SW-1",
+      "room": "Guest Bathroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "wall bracket, candidate location",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        572.0,
+        410.0
+      ],
+      "badge_xy": [
+        590.0,
+        400.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Guest Bathroom SB1 schedule row '2 ceiling light point / 1 geyser point / 1 exhaust fan point / 1 pressure pump point / mirror light point / 5/15 amp switch socket / 1 light will be on sensor'; small basin-shaped plan symbol with adjacent SB6/SB6A/SB7 tags at (566.2-577.7,396.1-434.4) on the wall shared by Guest Bedroom and Living & Dining.",
+      "assumption": "Guest Bathroom's own room outline is NOT clearly delineated on this electrical-only sheet \u2014 this nook is the best-evidenced fixture+switchboard cluster matching the schedule's Guest Bathroom row, but the exact room boundary should be confirmed against the architectural/furniture drawing before execution."
+    },
+    {
+      "id": "GT-SO-1",
+      "room": "Guest Bathroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "wall bracket, candidate location",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        572.0,
+        410.0
+      ],
+      "badge_xy": [
+        590.0,
+        416.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as GT-SW-1.",
+      "assumption": "Paired with GT-SW-1; same room-boundary caveat."
+    },
+    {
+      "id": "PB-4-1",
+      "room": "Parent's Bedroom",
+      "product": "4\"",
+      "qty": 1,
+      "mounting": "bedside screen, first side from entry",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        909.0,
+        268.0
+      ],
+      "badge_xy": [
+        940.0,
+        250.0
+      ],
+      "leader_drawn": true,
+      "evidence": "'side'+'table' pair at (909.2,257.4)-(914.3,281.6); bed label at (889.4,334.1)-(899.8,339.4); this side table sits nearer the room's top (corridor/entry) end.",
+      "assumption": "Rule 1: first bedside reached from entry gets 4\"+SW/SO \u2014 entry side inferred from proximity to the top corridor rather than a drawn door-swing arc (none is printed on this electrical sheet for the bedroom's own door)."
+    },
+    {
+      "id": "PB-SW-1",
+      "room": "Parent's Bedroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "bedside, first side from entry",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        909.0,
+        268.0
+      ],
+      "badge_xy": [
+        940.0,
+        266.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as PB-4-1.",
+      "assumption": "Paired with PB-4-1."
+    },
+    {
+      "id": "PB-SO-1",
+      "room": "Parent's Bedroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "bedside, first side from entry",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        909.0,
+        268.0
+      ],
+      "badge_xy": [
+        940.0,
+        282.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as PB-4-1.",
+      "assumption": "Paired with PB-4-1."
+    },
+    {
+      "id": "PB-SW-2",
+      "room": "Parent's Bedroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "bedside, other side",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        913.0,
+        415.0
+      ],
+      "badge_xy": [
+        940.0,
+        400.0
+      ],
+      "leader_drawn": true,
+      "evidence": "'side'+'table' pair at (911.8,404.5)-(916.9,428.7), near the balcony-door 'swing' callout at (823.1,418.7).",
+      "assumption": "Rule 1: other bedside gets SW/SO only."
+    },
+    {
+      "id": "PB-SO-2",
+      "room": "Parent's Bedroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "bedside, other side",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        913.0,
+        415.0
+      ],
+      "badge_xy": [
+        940.0,
+        416.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as PB-SW-2.",
+      "assumption": "Paired with PB-SW-2."
+    },
+    {
+      "id": "PB-CM-1",
+      "room": "Parent's Bedroom",
+      "product": "CM",
+      "qty": 1,
+      "mounting": "candidate drive end, balcony slider (left wall return)",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        858.0,
+        468.0
+      ],
+      "badge_xy": [
+        846.0,
+        452.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Word cluster 'curtain light point' at (891.6-934.5,611.3-622.6) in the Parent's Bedroom SB legend table; BALCONY 10'0\"x2'0\" opening at (853.4-878.5,471.7-482.9).",
+      "assumption": "Left return chosen (straight partition shared with Parent's Bathroom) over the right end, which the sheet marks '5\" TO 6\" CURVE' (a rounded corner, a weaker drive-end candidate). Track count / stacking side not shown \u2014 flag for site confirmation."
+    },
+    {
+      "id": "PB-GW-1",
+      "room": "Parent's Bedroom",
+      "product": "GW",
+      "qty": 1,
+      "mounting": "surface, near SB4/SB4A wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        932.0,
+        379.0
+      ],
+      "badge_xy": [
+        950.0,
+        362.0
+      ],
+      "leader_drawn": true,
+      "evidence": "In-plan SB4/SB4A tags at (925.4-939.4,373.6-385.3); Parent's Bedroom SB5 schedule row '5/15 amp socket - 2 nos for tv and HDMI cable extra'.",
+      "assumption": "No TV-console furniture symbol drawn for this room; AV wall inferred from the SB4/SB4A wall cluster nearest the TV/HDMI schedule line, same caveat as GB-GW-1."
+    },
+    {
+      "id": "PB-IR-1",
+      "room": "Parent's Bedroom",
+      "product": "IR",
+      "qty": 1,
+      "mounting": "separate blaster, near SB4/SB4A wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        932.0,
+        379.0
+      ],
+      "badge_xy": [
+        950.0,
+        380.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as PB-GW-1.",
+      "assumption": "Separate IR badge per family-B."
+    },
+    {
+      "id": "PT-SW-1",
+      "room": "Parent's Bathroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "wall bracket, dry wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        809.0,
+        407.0
+      ],
+      "badge_xy": [
+        796.0,
+        390.0
+      ],
+      "leader_drawn": true,
+      "evidence": "In-plan SB5A tag at (802.3,404.1)-(816.3,410.0); Parent's Bathroom SB1 schedule row '2 way ceiling light point / 1 geyser point / 1 exhaust fan point / 1 pressure pump point / mirror light point / 5/15 amp switch socket / 1 fan point / 1 light will be on sensor'.",
+      "assumption": "Only one wall-mounted SB tag (SB5A) is printed inside this small room; taken as the dry wall by elimination since it sits at the room's entry side."
+    },
+    {
+      "id": "PT-SO-1",
+      "room": "Parent's Bathroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "wall bracket, dry wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        809.0,
+        407.0
+      ],
+      "badge_xy": [
+        796.0,
+        406.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as PT-SW-1.",
+      "assumption": "Paired with PT-SW-1."
+    },
+    {
+      "id": "PW-SW-1",
+      "room": "Powder Bathroom",
+      "product": "SW",
+      "qty": 1,
+      "mounting": "wall bracket, entry/dry wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        365.0,
+        319.0
+      ],
+      "badge_xy": [
+        365.0,
+        300.0
+      ],
+      "leader_drawn": true,
+      "evidence": "Two in-plan SB1 tags at (338.3,316.2) and (391.0,316.2) on the room's top (passage-facing) wall; Powder Bathroom schedule text is not separately itemised on this sheet beyond the SB1 dots, consistent with a compact powder room.",
+      "assumption": "Cyan pair centered between the two printed SB1 dots on the passage-facing wall, read as the dry/entry wall for this small room."
+    },
+    {
+      "id": "PW-SO-1",
+      "room": "Powder Bathroom",
+      "product": "SO",
+      "qty": 1,
+      "mounting": "wall bracket, entry/dry wall",
+      "coordinate_space": "pdf-points, top-left origin, y-down (fitz convention)",
+      "anchor_xy": [
+        365.0,
+        319.0
+      ],
+      "badge_xy": [
+        365.0,
+        314.0
+      ],
+      "leader_drawn": false,
+      "evidence": "Same as PW-SW-1.",
+      "assumption": "Paired with PW-SW-1."
+    }
+  ]
+}
