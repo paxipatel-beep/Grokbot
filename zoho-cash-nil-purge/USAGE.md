@@ -25,7 +25,33 @@ Optional:
 
 `ZOHO_ACCOUNTS_URL` may be the accounts host or the full `.../oauth/v2/token` URL. Quotes and a leading `export ` are accepted. Lines starting with `#` are ignored.
 
-## Run the remaining 54
+## Box run after the daily cap resets
+
+Live purge runs on the Accountant box, not from the cloud VM. This VM does not have the VLIGHTS Cash OAuth env file. Zoho's org cap is 2,000 Books calls per day and resets at **00:19 IST**. The window observed at 2026-09-24 00:19 IST had already used 1,800 calls, so start only after the next reset. `--max-calls 1800` stops the script before that cap. Code 45 still hard-stops the process (exit 2) if Zoho enforces the limit anyway.
+
+Do **remaining 4** first, then batch 2. CUS-305, CUS-368, and CUS-450 are quotes blocked by a retainer invoice (code 9208). The script voids and deletes the linked retainer and any linked invoice, then deletes the estimate, then the contact. CUS-460 stopped mid-pass on `--max-calls` and was **not** deleted. It is in `remaining_4_open.json`, so this run starts that contact again. Documents already removed are treated as gone. Do not pass a skip file for this step unless a contact's `contact_deleted` is true.
+
+```bash
+python3 zoho-cash-nil-purge/purge_remaining.py \
+  --contacts zoho-cash-nil-purge/remaining_4_open.json \
+  --env /home/box/agent-data/shared-secrets/zoho-vlights-cash.env \
+  --out zoho-cash-nil-purge/purge_remaining_4_results.json \
+  --max-calls 1800
+```
+
+When that summary shows the four contacts deleted and `calls_made` is well under 1800, run batch 2 (CUS-464 through CUS-687, 100 contacts):
+
+```bash
+python3 zoho-cash-nil-purge/purge_remaining.py \
+  --contacts zoho-cash-nil-purge/batch2_next100.json \
+  --env /home/box/agent-data/shared-secrets/zoho-vlights-cash.env \
+  --out zoho-cash-nil-purge/purge_batch2_results.json \
+  --max-calls 1800
+```
+
+If batch 2 stops on `--max-calls` or code 45, wait for the next 00:19 IST reset and resume with the same command plus `--skip-deleted-from zoho-cash-nil-purge/purge_batch2_results.json`. Contacts with `contact_deleted: false` (including a mid-pass stop such as CUS-460) are retried.
+
+## Run the earlier remaining 54
 
 From the repo root:
 
@@ -88,9 +114,9 @@ Up to three passes. A pass stops early when a later pass finds nothing left.
 3. Delete customer payments.
 4. Delete credit notes. If Zoho still reports applied credits or refunds (code `1040`), unapply again and retry, then void and delete.
 5. Delete invoices. If credits or payments are still attached, unapply and retry. If delete returns `Salesperson cannot be empty` (code `120104`), GET the invoice and `PUT` it back as `JSONString` with `salesperson_id` **and** its `line_items` (a salesperson id alone fails on older paid invoices). If that update fails, or the delete still fails, void the invoice and delete it. Credits that survive unapply are voided and then deleted (void detaches credits).
-6. Delete retainer invoices (quotes can be blocked by these; a missing retainer module is skipped).
+6. Delete retainer invoices, including drawn and paid ones (`filter_by=Status.All`). A missing retainer module is skipped. If delete fails, void the retainer and delete it.
 7. Delete sales orders. If an invoice still exists, leave the sales order for the next pass.
-8. Delete estimates/quotes. Code `9208` (invoice or retainer still linked) waits for the next pass, after invoices are gone.
+8. Delete estimates/quotes. On code `9208` (`retainer invoice or invoices have been created`), GET the estimate, void and delete every linked retainer invoice and invoice, list the customer's retainers again, then delete the estimate. The contact is deleted only after that. This is the path for CUS-305, CUS-368, and CUS-450.
 
 Then `DELETE /contacts/{contact_id}`.
 

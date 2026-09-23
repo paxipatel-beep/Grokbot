@@ -1,0 +1,26 @@
+[
+  {
+    "contact_id": "2056712000000623431",
+    "contact_number": "CUS-305",
+    "contact_name": "ARCT TEENA (PRAMOD -9892453396)",
+    "prior_message": "These contacts cannot be deleted as they are associated either with some documents or transactions."
+  },
+  {
+    "contact_id": "2056712000000680007",
+    "contact_number": "CUS-368",
+    "contact_name": "ARCT ANNAS -9773398042",
+    "prior_message": "These contacts cannot be deleted as they are associated either with some documents or transactions."
+  },
+  {
+    "contact_id": "2056712000000799097",
+    "contact_number": "CUS-450",
+    "contact_name": "ARCT VINOD NARKAR (WADALA)",
+    "prior_message": "These contacts cannot be deleted as they are associated either with some documents or transactions."
+  },
+  {
+    "contact_id": "2056712000000820279",
+    "contact_number": "CUS-460",
+    "contact_name": "ARCT PRERNA/RADHIKA-DEEPALI",
+    "prior_message": "local --max-calls 1800 reached (1800 Zoho Books calls)"
+  }
+]

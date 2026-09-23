@@ -564,7 +564,15 @@ class ZohoBooks:
         message = message_of(body).lower()
         return "per_page" in message or "extra parameter" in message
 
-    def list_collection(self, path: str, list_key, customer_id: str | None = None, optional: bool = False):
+    def list_collection(
+        self,
+        path: str,
+        list_key,
+        customer_id: str | None = None,
+        optional: bool = False,
+        extra_query: dict | None = None,
+        _stripped: bool = False,
+    ):
         keys = (list_key,) if isinstance(list_key, str) else tuple(list_key)
         if path in self.skip_prefixes:
             return [], "skipped", {"code": 0, "message": "skipped"}, None
@@ -575,12 +583,29 @@ class ZohoBooks:
             query: dict = {"per_page": PER_PAGE, "page": page}
             if customer_id:
                 query["customer_id"] = customer_id
+            if extra_query:
+                query.update(extra_query)
             body, http = self.call("GET", path, query=query)
             single_page = False
             if page == 1 and self._pagination_rejected(body):
-                bare = {"customer_id": customer_id} if customer_id else None
-                body, http = self.call("GET", path, query=bare)
+                bare: dict = {}
+                if customer_id:
+                    bare["customer_id"] = customer_id
+                if extra_query:
+                    bare.update(extra_query)
+                body, http = self.call("GET", path, query=bare or None)
                 single_page = True
+            if (
+                page == 1
+                and extra_query
+                and not _stripped
+                and not (isinstance(body, dict) and code_of(body) in (0, "0"))
+            ):
+                message = message_of(body).lower()
+                if "filter" in message or "extra parameter" in message:
+                    return self.list_collection(
+                        path, list_key, customer_id, optional, extra_query=None, _stripped=True
+                    )
             if optional and is_unsupported(body, http):
                 self.skip_prefixes.add(path)
                 return items, "unsupported", body, http
@@ -1056,6 +1081,130 @@ def delete_invoice(client: ZohoBooks, entry: dict, pass_i: int, invoice_id: str,
     return False
 
 
+def _dedupe_docs(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    seen: set[str] = set()
+    unique: list[tuple[str, str]] = []
+    for doc_id, number in pairs:
+        if not doc_id or doc_id in seen:
+            continue
+        seen.add(doc_id)
+        unique.append((doc_id, number or doc_id))
+    return unique
+
+
+def links_from_estimate(estimate: dict) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+    """Retainer invoices and invoices referenced by one estimate/quote."""
+    retainers: list[tuple[str, str]] = []
+    invoices: list[tuple[str, str]] = []
+    if not isinstance(estimate, dict):
+        return [], []
+    for key in ("retainerinvoice_id", "retainer_invoice_id"):
+        if estimate.get(key):
+            retainers.append((str(estimate[key]), str(estimate.get("retainerinvoice_number") or estimate[key])))
+    nested = estimate.get("retainerinvoice")
+    if isinstance(nested, dict) and nested.get("retainerinvoice_id"):
+        retainers.append(
+            (str(nested["retainerinvoice_id"]), str(nested.get("retainerinvoice_number") or nested["retainerinvoice_id"]))
+        )
+    for key in ("retainerinvoices", "retainer_invoices"):
+        for row in estimate.get(key) or []:
+            if isinstance(row, dict) and row.get("retainerinvoice_id"):
+                retainers.append(
+                    (str(row["retainerinvoice_id"]), str(row.get("retainerinvoice_number") or row["retainerinvoice_id"]))
+                )
+    if estimate.get("invoice_id"):
+        invoices.append((str(estimate["invoice_id"]), str(estimate.get("invoice_number") or estimate["invoice_id"])))
+    for row in estimate.get("invoices") or []:
+        if isinstance(row, dict) and row.get("invoice_id"):
+            invoices.append((str(row["invoice_id"]), str(row.get("invoice_number") or row["invoice_id"])))
+    return _dedupe_docs(retainers), _dedupe_docs(invoices)
+
+
+def clear_estimate_blockers(
+    client: ZohoBooks, entry: dict, pass_i: int, estimate_id: str, number: str, customer_id: str
+) -> None:
+    """Void/delete retainers and invoices that make Zoho refuse the quote (code 9208)."""
+    detail, detail_http = client.call("GET", f"/estimates/{estimate_id}")
+    estimate = detail.get("estimate") if isinstance(detail, dict) else None
+    if not isinstance(estimate, dict):
+        missing = (
+            {"code": None, "message": "estimate payload did not include linked retainers or invoices"}
+            if isinstance(detail, dict) and code_of(detail) in (0, "0")
+            else detail
+        )
+        record(
+            entry,
+            pass_i=pass_i,
+            action="get",
+            kind="estimates",
+            doc_id=estimate_id,
+            number=number,
+            body=missing,
+            http=detail_http,
+        )
+        retainers: list[tuple[str, str]] = []
+        invoices: list[tuple[str, str]] = []
+    else:
+        retainers, invoices = links_from_estimate(estimate)
+    listed, status, list_body, list_http = client.list_collection(
+        "/retainerinvoices",
+        "retainerinvoices",
+        customer_id,
+        optional=True,
+        extra_query={"filter_by": "Status.All"},
+    )
+    if status == "error":
+        record(
+            entry,
+            pass_i=pass_i,
+            action="list",
+            kind="retainerinvoices",
+            doc_id=customer_id,
+            number=entry.get("contact_number"),
+            body=list_body,
+            http=list_http,
+        )
+    for item in listed:
+        retainer_id = str(item.get("retainerinvoice_id") or "")
+        if retainer_id:
+            retainers.append((retainer_id, str(item.get("retainerinvoice_number") or retainer_id)))
+    retainers = _dedupe_docs(retainers)
+    for invoice_id, invoice_number in invoices:
+        delete_invoice(client, entry, pass_i, invoice_id, invoice_number)
+    for retainer_id, retainer_number in retainers:
+        delete_document(client, entry, pass_i, "retainerinvoices", "/retainerinvoices", retainer_id, retainer_number)
+
+
+def delete_estimate(
+    client: ZohoBooks, entry: dict, pass_i: int, estimate_id: str, number: str, customer_id: str
+) -> bool:
+    body, http = client.call("DELETE", f"/estimates/{estimate_id}")
+    ok = record(
+        entry,
+        pass_i=pass_i,
+        action="delete",
+        kind="estimates",
+        doc_id=estimate_id,
+        number=number,
+        body=body,
+        http=http,
+    )
+    if ok or not is_invoice_linked(body):
+        return ok
+    clear_estimate_blockers(client, entry, pass_i, estimate_id, number, customer_id)
+    body, http = client.call("DELETE", f"/estimates/{estimate_id}")
+    return record(
+        entry,
+        pass_i=pass_i,
+        action="delete",
+        kind="estimates",
+        doc_id=estimate_id,
+        number=number,
+        body=body,
+        http=http,
+    )
+
+
 def delete_document(client: ZohoBooks, entry: dict, pass_i: int, kind: str, path: str, doc_id: str, number: str) -> bool:
     body, http = client.call("DELETE", f"{path}/{doc_id}")
     ok = record(
@@ -1136,8 +1285,9 @@ def run_pass(client: ZohoBooks, entry: dict, pass_i: int, customer_id: str) -> d
             unapply_invoice_credits(client, entry, pass_i, invoice_id, number)
 
     for kind, path, list_key, id_key, num_key, optional in DOC_STEPS:
+        extra_query = {"filter_by": "Status.All"} if kind == "retainerinvoices" else None
         items, status, list_body, list_http = client.list_collection(
-            path, list_key, customer_id, optional=optional
+            path, list_key, customer_id, optional=optional, extra_query=extra_query
         )
         if status == "error":
             stats["list_failed"] = True
@@ -1175,6 +1325,8 @@ def run_pass(client: ZohoBooks, entry: dict, pass_i: int, customer_id: str) -> d
                 deleted = delete_creditnote(client, entry, pass_i, doc_id, number)
             elif kind == "invoices":
                 deleted = delete_invoice(client, entry, pass_i, doc_id, number)
+            elif kind == "estimates":
+                deleted = delete_estimate(client, entry, pass_i, doc_id, number, customer_id)
             else:
                 deleted = delete_document(client, entry, pass_i, kind, path, doc_id, number)
             if not deleted:
