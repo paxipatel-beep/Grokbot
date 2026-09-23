@@ -1,0 +1,527 @@
+{
+  "meta": {
+    "project": "blank-marking-2026-09-23",
+    "arm": "cursor-cloud (grok models)",
+    "base_pdf": "inputs/BLANK_SYNTHETIC_1BHK.pdf",
+    "page_size_pt": [
+      1190.55,
+      841.89
+    ],
+    "status": "PROPOSED / FOR REVIEW / NOT FOR EXECUTION",
+    "evidence_class": "base-only (no client quote/scope)",
+    "coordinate_system": "top-down page points, origin top-left, y increases downward (matches PyMuPDF page space)"
+  },
+  "totals": {
+    "10\"": 1,
+    "4\"": 2,
+    "CM": 4,
+    "DB": 1,
+    "GW": 1,
+    "IR": 1,
+    "SO": 9,
+    "SW": 10
+  },
+  "totals_by_room": {
+    "Master Bedroom": {
+      "CM": 2,
+      "4\"": 1,
+      "SW": 2,
+      "SO": 2
+    },
+    "Living / Dining": {
+      "CM": 2,
+      "SW": 2,
+      "SO": 2,
+      "10\"": 1,
+      "GW": 1,
+      "IR": 1
+    },
+    "Master Bath": {
+      "SW": 1,
+      "SO": 1
+    },
+    "Powder": {
+      "SW": 1,
+      "SO": 1
+    },
+    "Guest Bedroom": {
+      "4\"": 1,
+      "SW": 2,
+      "SO": 2
+    },
+    "Guest Bath": {
+      "SW": 1,
+      "SO": 1
+    },
+    "Foyer / Entry": {
+      "SW": 1,
+      "DB": 1
+    }
+  },
+  "placements": [
+    {
+      "kind": "CM",
+      "family": "purple",
+      "room": "Master Bedroom",
+      "note": "curtain track - left end",
+      "bbox_topdown_pt": [
+        106,
+        158,
+        134,
+        174
+      ],
+      "center_topdown_pt": [
+        120.0,
+        166.0
+      ]
+    },
+    {
+      "kind": "CM",
+      "family": "purple",
+      "room": "Master Bedroom",
+      "note": "curtain track - right end",
+      "bbox_topdown_pt": [
+        346,
+        158,
+        374,
+        174
+      ],
+      "center_topdown_pt": [
+        360.0,
+        166.0
+      ]
+    },
+    {
+      "kind": "4\"",
+      "family": "orange",
+      "room": "Master Bedroom",
+      "note": "first-side bedside (east/right table)",
+      "bbox_topdown_pt": [
+        340,
+        232,
+        368,
+        250
+      ],
+      "center_topdown_pt": [
+        354.0,
+        241.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Master Bedroom",
+      "note": "first-side bedside (east/right table)",
+      "bbox_topdown_pt": [
+        336,
+        256,
+        358,
+        272
+      ],
+      "center_topdown_pt": [
+        347.0,
+        264.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "wall",
+      "room": "Master Bedroom",
+      "note": "first-side bedside (east/right table)",
+      "bbox_topdown_pt": [
+        336,
+        276,
+        358,
+        292
+      ],
+      "center_topdown_pt": [
+        347.0,
+        284.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Master Bedroom",
+      "note": "other bedside (west/left table)",
+      "bbox_topdown_pt": [
+        106,
+        220,
+        126,
+        236
+      ],
+      "center_topdown_pt": [
+        116.0,
+        228.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "wall",
+      "room": "Master Bedroom",
+      "note": "other bedside (west/left table)",
+      "bbox_topdown_pt": [
+        106,
+        285,
+        126,
+        301
+      ],
+      "center_topdown_pt": [
+        116.0,
+        293.0
+      ]
+    },
+    {
+      "kind": "CM",
+      "family": "purple",
+      "room": "Living / Dining",
+      "note": "curtain track - left end",
+      "bbox_topdown_pt": [
+        406,
+        158,
+        434,
+        174
+      ],
+      "center_topdown_pt": [
+        420.0,
+        166.0
+      ]
+    },
+    {
+      "kind": "CM",
+      "family": "purple",
+      "room": "Living / Dining",
+      "note": "curtain track - right end",
+      "bbox_topdown_pt": [
+        676,
+        158,
+        704,
+        174
+      ],
+      "center_topdown_pt": [
+        690.0,
+        166.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Living / Dining",
+      "note": "sofa side table - west",
+      "bbox_topdown_pt": [
+        404,
+        270,
+        426,
+        286
+      ],
+      "center_topdown_pt": [
+        415.0,
+        278.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "wall",
+      "room": "Living / Dining",
+      "note": "sofa side table - west",
+      "bbox_topdown_pt": [
+        404,
+        290,
+        426,
+        306
+      ],
+      "center_topdown_pt": [
+        415.0,
+        298.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Living / Dining",
+      "note": "sofa side table - east",
+      "bbox_topdown_pt": [
+        696,
+        270,
+        718,
+        286
+      ],
+      "center_topdown_pt": [
+        707.0,
+        278.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "wall",
+      "room": "Living / Dining",
+      "note": "sofa side table - east",
+      "bbox_topdown_pt": [
+        696,
+        290,
+        718,
+        306
+      ],
+      "center_topdown_pt": [
+        707.0,
+        298.0
+      ]
+    },
+    {
+      "kind": "10\"",
+      "family": "peach",
+      "room": "Living / Dining",
+      "note": "open-plan sightline to Passage/Foyer entry",
+      "bbox_topdown_pt": [
+        542,
+        368,
+        576,
+        388
+      ],
+      "center_topdown_pt": [
+        559.0,
+        378.0
+      ]
+    },
+    {
+      "kind": "GW",
+      "family": "yellow",
+      "room": "Living / Dining",
+      "note": "surface gateway near TV",
+      "bbox_topdown_pt": [
+        566,
+        178,
+        600,
+        200
+      ],
+      "center_topdown_pt": [
+        583.0,
+        189.0
+      ]
+    },
+    {
+      "kind": "IR",
+      "family": "black",
+      "room": "Living / Dining",
+      "note": "IR blaster near TV",
+      "bbox_topdown_pt": [
+        605,
+        179,
+        625,
+        199
+      ],
+      "center_topdown_pt": [
+        615.0,
+        189.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "bracket",
+      "room": "Master Bath",
+      "note": "parallel on dry basin (west) wall",
+      "bbox_topdown_pt": [
+        104,
+        505,
+        126,
+        521
+      ],
+      "center_topdown_pt": [
+        115.0,
+        513.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "bracket",
+      "room": "Master Bath",
+      "note": "parallel on dry basin (west) wall",
+      "bbox_topdown_pt": [
+        104,
+        525,
+        126,
+        541
+      ],
+      "center_topdown_pt": [
+        115.0,
+        533.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "bracket",
+      "room": "Powder",
+      "note": "parallel on dry basin (west) wall",
+      "bbox_topdown_pt": [
+        284,
+        451,
+        306,
+        467
+      ],
+      "center_topdown_pt": [
+        295.0,
+        459.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "bracket",
+      "room": "Powder",
+      "note": "parallel on dry basin (west) wall",
+      "bbox_topdown_pt": [
+        284,
+        471,
+        306,
+        487
+      ],
+      "center_topdown_pt": [
+        295.0,
+        479.0
+      ]
+    },
+    {
+      "kind": "4\"",
+      "family": "orange",
+      "room": "Guest Bedroom",
+      "note": "first-side bedside (west/left table)",
+      "bbox_topdown_pt": [
+        748,
+        400,
+        776,
+        418
+      ],
+      "center_topdown_pt": [
+        762.0,
+        409.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Guest Bedroom",
+      "note": "first-side bedside (west/left table)",
+      "bbox_topdown_pt": [
+        748,
+        466,
+        776,
+        482
+      ],
+      "center_topdown_pt": [
+        762.0,
+        474.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "wall",
+      "room": "Guest Bedroom",
+      "note": "first-side bedside (west/left table)",
+      "bbox_topdown_pt": [
+        748,
+        486,
+        776,
+        502
+      ],
+      "center_topdown_pt": [
+        762.0,
+        494.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Guest Bedroom",
+      "note": "other bedside (east/right table)",
+      "bbox_topdown_pt": [
+        930,
+        436,
+        952,
+        452
+      ],
+      "center_topdown_pt": [
+        941.0,
+        444.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "wall",
+      "room": "Guest Bedroom",
+      "note": "other bedside (east/right table)",
+      "bbox_topdown_pt": [
+        930,
+        456,
+        952,
+        472
+      ],
+      "center_topdown_pt": [
+        941.0,
+        464.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "bracket",
+      "room": "Guest Bath",
+      "note": "parallel on dry basin (west) wall",
+      "bbox_topdown_pt": [
+        744,
+        685,
+        766,
+        701
+      ],
+      "center_topdown_pt": [
+        755.0,
+        693.0
+      ]
+    },
+    {
+      "kind": "SO",
+      "family": "bracket",
+      "room": "Guest Bath",
+      "note": "parallel on dry basin (west) wall",
+      "bbox_topdown_pt": [
+        744,
+        705,
+        766,
+        721
+      ],
+      "center_topdown_pt": [
+        755.0,
+        713.0
+      ]
+    },
+    {
+      "kind": "SW",
+      "family": "wall",
+      "room": "Foyer / Entry",
+      "note": "latch wall, opposite door swing (swing sweeps east)",
+      "bbox_topdown_pt": [
+        434,
+        712,
+        456,
+        728
+      ],
+      "center_topdown_pt": [
+        445.0,
+        720.0
+      ]
+    },
+    {
+      "kind": "DB",
+      "family": "black",
+      "room": "Foyer / Entry",
+      "note": "doorbell at main entry",
+      "bbox_topdown_pt": [
+        552,
+        692,
+        566,
+        718
+      ],
+      "center_topdown_pt": [
+        559.0,
+        705.0
+      ]
+    }
+  ]
+}
